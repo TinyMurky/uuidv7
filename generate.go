@@ -45,8 +45,7 @@ const (
 
 // millisecondInUint64 generate unix_ts_ms (0~47 bit)
 func millisecondInUint64(uuidTime time.Time) uint64 {
-	milliseconds := uint64(uuidTime.UnixNano() / int64(time.Millisecond))
-	return milliseconds
+	return uint64(uuidTime.UnixMilli())
 }
 
 // nanosecondAsRandAInUint64 generate rand_a (12 bit) 52~63 bit
