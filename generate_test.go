@@ -44,3 +44,17 @@ func TestZeroUUIDv7(t *testing.T) {
 		t.Errorf("expect ZeroUUIDv7 string is %q, got %q", expectZeroUUIDStr, zero.String())
 	}
 }
+
+func BenchmarkNewUUIDv7(b *testing.B) {
+	for b.Loop() {
+		uuidv7.New()
+	}
+}
+
+func BenchmarkNewUUIDv7Parallel(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			uuidv7.New()
+		}
+	})
+}
