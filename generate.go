@@ -5,7 +5,10 @@ package uuidv7
 import (
 	"encoding/binary"
 	"math"
-	"math/rand/v2"
+	"math/big"
+
+	//"math/rand/v2"
+	"crypto/rand"
 	"time"
 )
 
@@ -63,19 +66,12 @@ func nanosecondAsRandAInUint64(uuidTime time.Time) uint64 {
 // randBInUint64 generate 62 bits random number (66~127)
 func randBInUint64() (uint64, error) {
 	// Below use crypto/rand, safe but slow
-
-	// lim := new(big.Int).Lsh(big.NewInt(1), 62) // 2^62
-	// n, err := rand.Int(rand.Reader, lim)       // [0, 2^62) ()
-	// if err != nil {
-	// 	return 0, err
-	// }
-	// rand.IntN()
-
-	// Below use rand/v2, faster but unsafe
-	const TwoPow62 = uint64(1) << 62
-
-	// half-open interval [0,n), n is not included
-	return rand.Uint64N(TwoPow62), nil
+	lim := new(big.Int).Lsh(big.NewInt(1), 62) // 2 << 62
+	n, err := rand.Int(rand.Reader, lim)       // [0, 2^62) ()
+	if err != nil {
+		return 0, err
+	}
+	return n.Uint64(), nil
 }
 
 // first64Bits generate 64 bits of uuidv7, unix_ts_ms (48 bit) + ver (4 bit) + rand_a (12bit)
@@ -83,7 +79,7 @@ func first64Bits(uuidTime time.Time) uint64 {
 	milliseconds := millisecondInUint64(uuidTime)
 	version := versionInUint64
 	randA := nanosecondAsRandAInUint64(uuidTime)
-	sixtyFourBitField := (milliseconds << 16) | ((version << 12) & 0xF000) | (randA)
+	sixtyFourBitField := (milliseconds << 16) | (version << 12) | randA
 	return sixtyFourBitField
 }
 
